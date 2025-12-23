@@ -44,7 +44,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-    command: --default-authentication-plugin=mysql_native_password
+    command: --default-authentication-plugin=mysql_native_password --socket=/var/run/mysqld/mysqld.sock
 
 networks:
   mynet:
