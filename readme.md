@@ -6,6 +6,7 @@
 
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
+- [Development Mode](#development-mode)
 - [Configuration](#configuration)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -86,6 +87,36 @@ docker compose up -d
 # Or using make
 make start
 ```
+
+## Development Mode
+
+For local development without configuring a domain, use the development setup:
+
+### Quick Start (Development)
+
+```bash
+# Start in development mode (accepts localhost)
+./dev.sh up -d
+
+# View logs
+./dev.sh logs -f
+
+# Stop services
+./dev.sh down
+
+# Restart
+./dev.sh restart
+```
+
+Access the application at `http://localhost`
+
+### Development Files
+
+| File | Description |
+|------|-------------|
+| `dev.sh` | Script to run docker compose with dev config |
+| `caddy.dev.conf` | Caddy config that accepts any hostname |
+| `docker-compose.dev.yaml` | Override for development environment |
 
 ### 6. Install V2Board
 
@@ -290,10 +321,13 @@ make start
 v2board-docker/
 ├── .env.example                          # Environment variables template
 ├── .gitignore                            # Git ignore rules
-├── docker-compose.yaml                   # Docker Compose configuration
-├── docker-compose.override.yaml.example  # Override template for development
+├── docker-compose.yaml                   # Docker Compose configuration (production)
+├── docker-compose.dev.yaml               # Docker Compose override (development)
+├── docker-compose.override.yaml.example  # Override template for custom config
 ├── Makefile                              # Common commands
-├── caddy.conf                            # Caddy web server configuration
+├── dev.sh                                # Development startup script
+├── caddy.conf                            # Caddy config (production - requires domain)
+├── caddy.dev.conf                        # Caddy config (development - accepts any host)
 ├── supervisord.conf                      # Supervisor configuration
 ├── crontabs.conf                         # Cron jobs configuration
 ├── readme.md                             # This file

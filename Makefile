@@ -1,10 +1,14 @@
-.PHONY: help start stop restart status logs shell shell-mysql update install clean
+.PHONY: help start stop restart status logs shell shell-mysql update install clean dev dev-stop dev-restart dev-logs
+
+# Docker compose commands
+DC := docker compose
+DC_DEV := docker compose -f docker-compose.yaml -f docker-compose.dev.yaml
 
 # Default target
 help:
 	@echo "V2Board Docker Management"
 	@echo ""
-	@echo "Available commands:"
+	@echo "Production commands:"
 	@echo "  make start        - Start all containers"
 	@echo "  make stop         - Stop all containers"
 	@echo "  make restart      - Restart all containers"
@@ -17,6 +21,12 @@ help:
 	@echo "  make update       - Update www submodule"
 	@echo "  make install      - Run initial V2Board installation"
 	@echo "  make clean        - Stop and remove all containers, networks"
+	@echo ""
+	@echo "Development commands:"
+	@echo "  make dev          - Start in development mode (localhost)"
+	@echo "  make dev-stop     - Stop development containers"
+	@echo "  make dev-restart  - Restart development containers"
+	@echo "  make dev-logs     - Show development logs"
 
 # Start containers
 start:
@@ -78,3 +88,17 @@ install:
 clean:
 	docker compose down -v
 	@echo "All containers and volumes removed."
+
+# Development mode commands
+dev:
+	$(DC_DEV) up -d
+	@echo "Development server started at http://localhost"
+
+dev-stop:
+	$(DC_DEV) down
+
+dev-restart:
+	$(DC_DEV) restart
+
+dev-logs:
+	$(DC_DEV) logs -f
