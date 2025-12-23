@@ -34,8 +34,8 @@ docker-compose up -d
 ### Install V2Board
 ```
 docker-compose exec www bash
-wget https://getcomposer.org/install -O composer.phar
-php composer.phar
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+php composer-setup.php
 php composer.phar install
 php artisan v2board:install
 
@@ -59,8 +59,8 @@ docker-compose restart
 git submodule update --remote
 docker-compose exec www bash
 rm -rf composer.lock composer.phar
-wget https://getcomposer.org/installer -O composer.phar
-php composer.phar
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+php composer-setup.php
 php composer.phar update
 php artisan v2board:update
 php artisan config:cache
