@@ -1,7 +1,7 @@
-version: '3'
 services:
   www:
     image: tokumeikoi/lcrp
+    container_name: v2board-www
     volumes:
       - './www:/www'
       - './wwwlogs:/wwwlogs'
@@ -10,23 +10,42 @@ services:
       - './crontabs.conf:/etc/crontabs/root'
       - './.caddy:/root/.caddy'
     ports:
-      - '80:80'
-      - '443:443'
+      - '${HTTP_PORT:-80}:80'
+      - '${HTTPS_PORT:-443}:443'
     restart: always
-    links:
-      - mysql
+    depends_on:
+      mysql:
+        condition: service_healthy
     networks:
       - mynet
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
   mysql:
-    image: mysql:5.7.29
+    image: mysql:8.0
+    container_name: v2board-mysql
     volumes:
       - './mysql:/var/lib/mysql'
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: 'Password'
-      MYSQL_DATABASE: 'Database'
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-v2boardisbest}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-v2board}
+      MYSQL_USER: ${MYSQL_USER:-v2board}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-v2boardpassword}
     networks:
       - mynet
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: --default-authentication-plugin=mysql_native_password
+
 networks:
   mynet:
     driver: bridge

@@ -1,0 +1,27 @@
+# docker-compose.override.yaml.example
+# Copy this file to docker-compose.override.yaml for local development customizations
+# This file is automatically loaded by docker compose and overrides settings in docker-compose.yaml
+
+services:
+  www:
+    # Example: Use different ports for local development
+    # ports:
+    #   - '8080:80'
+    #   - '8443:443'
+    
+    # Example: Add development-specific volumes
+    # volumes:
+    #   - './custom-config.php:/www/config/custom.php'
+    
+    # Example: Override environment variables
+    # environment:
+    #   - PHP_DISPLAY_ERRORS=On
+    #   - APP_DEBUG=true
+
+  mysql:
+    # Example: Expose MySQL port for external access
+    # ports:
+    #   - '3306:3306'
+    
+    # Example: Use different MySQL configuration
+    # command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4

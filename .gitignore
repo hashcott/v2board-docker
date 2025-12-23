@@ -1,1 +1,29 @@
-mysql
+# Database
+mysql/
+
+# Environment variables
+.env
+
+# Caddy certificates and data
+.caddy/
+
+# Logs
+wwwlogs/
+*.log
+
+# Composer
+www/vendor/
+www/composer.lock
+www/composer.phar
+www/composer-setup.php
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
