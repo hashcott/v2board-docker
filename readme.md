@@ -134,10 +134,21 @@ php artisan v2board:install
 ```
 
 **Database Configuration (during installation):**
-- Database Address: `mysql`
-- Database Name: `v2board` (or your custom name from `.env`)
-- Database Username: `root`
-- Database Password: Check your `.env` file (default: `v2boardisbest`)
+
+| Field | Value | Description |
+|-------|-------|-------------|
+| Database Address | `mysql` or `v2board-mysql` | Service name or container name (NOT `localhost`) |
+| Database Name | `v2board` | Or your custom name from `.env` |
+| Database Username | `root` | Or `v2board` user |
+| Database Password | `v2boardisbest` | Check `MYSQL_ROOT_PASSWORD` in `.env` |
+
+> ⚠️ **Important:** Database Address must NOT be `localhost` or `127.0.0.1`.
+>
+> You can use:
+> - `mysql` - service name (recommended)
+> - `v2board-mysql` - container name (also works)
+>
+> In Docker, each container has its own network namespace. The `www` container connects to `mysql` container via Docker internal network.
 
 After installation completes:
 
@@ -174,6 +185,41 @@ All environment variables are defined in `.env`. Key variables:
 ### Database Configuration
 
 MySQL 8.0 is used by default. The database uses native password authentication for compatibility.
+
+#### Docker Network & Database Connection
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Docker Network (mynet)               │
+│                                                         │
+│  ┌─────────────────┐         ┌─────────────────┐       │
+│  │   www container │ ──────► │  mysql container│       │
+│  │   (v2board-www) │  mysql  │  (v2board-mysql)│       │
+│  │                 │  :3306  │                 │       │
+│  └─────────────────┘         └─────────────────┘       │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Connection from inside container (www → mysql):**
+- Host: `mysql` (service name) or `v2board-mysql` (container name)
+- Port: `3306`
+
+**Connection from host machine:**
+- Host: `localhost` or `127.0.0.1`
+- Port: `3306` (if exposed in docker-compose)
+
+#### Why NOT use `localhost`?
+
+| Context | Host Value | Explanation |
+|---------|------------|-------------|
+| Inside `www` container | `mysql` or `v2board-mysql` | Docker DNS resolves service/container names |
+| From host machine | `localhost:3306` | Only if port is exposed |
+| V2Board `.env` config | `mysql` | App runs inside container |
+
+> 💡 **Tip:** When installing V2Board:
+> - Use `mysql` (service name) - **recommended**
+> - Or `v2board-mysql` (container name) - also works
 
 ## Usage
 
@@ -275,7 +321,27 @@ make status
 
 2. Check database credentials in `.env` match those used during installation
 
-3. Verify the database host is set to `mysql` (not `localhost`)
+3. **Verify the database host is set to `mysql` (NOT `localhost` or `127.0.0.1`)**
+
+   Common mistake: Using `localhost` as database host will fail because:
+   - `localhost` inside container refers to the container itself, not the MySQL container
+   - Docker containers communicate via service names defined in `docker-compose.yaml`
+
+   **Correct config in `www/.env`:**
+   ```env
+   DB_HOST=mysql              # or v2board-mysql
+   DB_PORT=3306
+   DB_DATABASE=v2board
+   DB_USERNAME=root
+   DB_PASSWORD=v2boardisbest
+   ```
+
+4. Test database connection from www container:
+   ```bash
+   make shell
+   # Inside container:
+   php -r "new PDO('mysql:host=mysql;dbname=v2board', 'root', 'v2boardisbest');" && echo "OK"
+   ```
 
 ### Permission issues
 
